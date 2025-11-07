@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Redeem Points - Public Grievance Tracker{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header text-white text-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <h3 class="mb-0">
+                        <i class="fas fa-coins me-2"></i>Redeem Your Points
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Points Balance Display -->
+                    <div class="alert alert-success text-center mb-4">
+                        <h4 class="mb-2">
+                            <i class="fas fa-wallet me-2"></i>Available Points Balance
+                        </h4>
+                        <h1 class="display-3 mb-0 text-warning">{{ current_user.points_balance }}</h1>
+                        <p class="mb-0 mt-2">Total Earned: {{ current_user.total_points_earned }} | Total Redeemed: {{ current_user.total_points_redeemed }}</p>
+                    </div>
+
+                    <!-- Redemption Form -->
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="points" class="form-label">Points to Redeem</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-coins"></i>
+                                </span>
+                                <input type="number" class="form-control" id="points" name="points" 
+                                       min="100" max="{{ current_user.points_balance }}" required
+                                       placeholder="Minimum 100 points">
+                            </div>
+                            <div class="form-text">Minimum redemption: 100 points. Maximum: {{ current_user.points_balance }} points</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="redemption_type" class="form-label">Redemption Type</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-gift"></i>
+                                </span>
+                                <select class="form-select" id="redemption_type" name="redemption_type" required onchange="updateRedemptionDetails()">
+                                    <option value="">Select Redemption Type</option>
+                                    <option value="bank_transfer">Bank Transfer</option>
+                                    <option value="gift_voucher">Gift Voucher (Amazon/Flipkart)</option>
+                                    <option value="mobile_recharge">Mobile Recharge</option>
+                                    <option value="donation">Donate to Charity</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3" id="detailsSection" style="display: none;">
+                            <label for="details" class="form-label" id="detailsLabel">Details</label>
+                            <textarea class="form-control" id="details" name="details" rows="4" 
+                                      placeholder="Enter required details..."></textarea>
+                            <div class="form-text" id="detailsHelp"></div>
+                        </div>
+
+                        <!-- Conversion Rate Info -->
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle me-2"></i>Conversion Rate</h6>
+                            <p class="mb-0">100 Points = ₹10 | 1000 Points = ₹100</p>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-lg" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+                                <i class="fas fa-check-circle me-2"></i>Submit Redemption Request
+                            </button>
+                            <a href="{{ url_for('citizen_dashboard') if current_user.role == 'citizen' else url_for('ngo_dashboard') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                            </a>
+                        </div>
+                    </form>
+
+                    <!-- Recent Redemptions -->
+                    {% if current_user.redemptions %}
+                    <hr class="my-4">
+                    <h5 class="mb-3"><i class="fas fa-history me-2"></i>Recent Redemptions</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Points</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for redemption in current_user.redemptions[:5] %}
+                                <tr>
+                                    <td>{{ redemption.created_at.strftime('%d/%m/%Y') }}</td>
+                                    <td>{{ redemption.points_redeemed }}</td>
+                                    <td>{{ redemption.redemption_type.replace('_', ' ').title() }}</td>
+                                    <td>
+                                        {% if redemption.status == 'Pending' %}
+                                            <span class="badge bg-warning">Pending</span>
+                                        {% elif redemption.status == 'Approved' %}
+                                            <span class="badge bg-info">Approved</span>
+                                        {% elif redemption.status == 'Completed' %}
+                                            <span class="badge bg-success">Completed</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- How to Earn Points -->
+            <div class="card mt-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-question-circle me-2"></i>How to Earn Points?
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if current_user.role == 'ngo' %}
+                        <ul class="mb-0">
+                            <li><strong>Verify a Complaint:</strong> Earn 100 points for each complaint you verify</li>
+                            <li><strong>Forward to Authorities:</strong> Successfully forwarding verified complaints helps citizens earn points too!</li>
+                            <li><strong>Quality Verification:</strong> Accurate verifications may earn bonus points</li>
+                        </ul>
+                    {% else %}
+                        <ul class="mb-0">
+                            <li><strong>Submit Valid Complaints:</strong> When NGOs verify and forward your complaint, you earn 30% of their points</li>
+                            <li><strong>Resolved Complaints:</strong> Earn bonus points when your complaint is resolved</li>
+                            <li><strong>Quality Submissions:</strong> Detailed complaints with photos earn more points</li>
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateRedemptionDetails() {
+    const redemptionType = document.getElementById('redemption_type').value;
+    const detailsSection = document.getElementById('detailsSection');
+    const detailsLabel = document.getElementById('detailsLabel');
+    const detailsHelp = document.getElementById('detailsHelp');
+    const detailsField = document.getElementById('details');
+    
+    if (redemptionType) {
+        detailsSection.style.display = 'block';
+        detailsField.required = true;
+        
+        switch(redemptionType) {
+            case 'bank_transfer':
+                detailsLabel.textContent = 'Bank Account Details';
+                detailsHelp.textContent = 'Enter your bank account number, IFSC code, and account holder name';
+                detailsField.placeholder = 'Account Number: XXXX\nIFSC Code: XXXX\nAccount Holder: Your Name';
+                break;
+            case 'gift_voucher':
+                detailsLabel.textContent = 'Email Address';
+                detailsHelp.textContent = 'Gift voucher code will be sent to this email';
+                detailsField.placeholder = 'your.email@example.com';
+                break;
+            case 'mobile_recharge':
+                detailsLabel.textContent = 'Mobile Number';
+                detailsHelp.textContent = 'Enter the 10-digit mobile number for recharge';
+                detailsField.placeholder = '10-digit mobile number';
+                break;
+            case 'donation':
+                detailsLabel.textContent = 'Charity/NGO Name (Optional)';
+                detailsHelp.textContent = 'Specify a charity or we will donate to a verified NGO';
+                detailsField.placeholder = 'Charity name (optional)';
+                detailsField.required = false;
+                break;
+        }
+    } else {
+        detailsSection.style.display = 'none';
+        detailsField.required = false;
+    }
+}
+</script>
+{% endblock %}

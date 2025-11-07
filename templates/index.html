@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Public Grievance Tracker{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">Public Grievance Tracker</h1>
+                <p class="lead mb-4">Track and resolve public grievances with transparency and efficiency. Submit your issues and monitor progress in real-time.</p>
+                <div class="d-flex gap-3">
+                    <a href="{{ url_for('submit_complaint') }}" class="btn btn-light btn-lg">
+                        <i class="fas fa-plus me-2"></i>Submit Grievance
+                    </a>
+                    <a href="{{ url_for('announcements') }}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-bullhorn me-2"></i>View Announcements
+                    </a>
+                    {% if not current_user.is_authenticated %}
+                        <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="text-center">
+                    <i class="fas fa-clipboard-list display-1 opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Location Selection Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow">
+                    <div class="card-header text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <h3 class="card-title mb-0">
+                            <i class="fas fa-map-marker-alt me-2"></i>Select Your Location
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="locationForm">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="state" class="form-label">State</label>
+                                    <select class="form-select" id="state" name="state" required>
+                                        <option value="">Select State</option>
+                                        <option value="Telangana" selected>Telangana</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="district" class="form-label">District</label>
+                                    <select class="form-select" id="district" name="district" required>
+                                        <option value="">Select District</option>
+                                        <option value="Hyderabad" selected>Hyderabad</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="village" class="form-label">Village/Urban Locality</label>
+                                    <select class="form-select" id="village" name="village" required>
+                                        <option value="">Select Village/Locality</option>
+                                        <option value="Amberpet">Amberpet</option>
+                                        <option value="Tirumalagiri">Tirumalagiri</option>
+                                        <option value="Bandlaguda">Bandlaguda</option>
+                                        <option value="Maredpalle">Maredpalle</option>
+                                        <option value="Secunderabad">Secunderabad</option>
+                                        <option value="Charminar">Charminar</option>
+                                        <option value="Banjara Hills">Banjara Hills</option>
+                                        <option value="Jubilee Hills">Jubilee Hills</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-lg" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+                                    <i class="fas fa-search me-2"></i>Find My Area
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <!-- Area Information Display -->
+                        <div id="areaInfo" class="mt-4" style="display: none;">
+                            <div class="alert alert-success">
+                                <h5><i class="fas fa-info-circle me-2"></i>Area Information</h5>
+                                <div id="areaDetails"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-12">
+                <h2 class="display-5 fw-bold">Portal Features</h2>
+                <p class="lead">Comprehensive digital governance solutions for citizens and administrators</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-exclamation-triangle text-warning display-4 mb-3"></i>
+                    <h5 class="card-title">Grievance Tracking</h5>
+                    <p class="card-text">Submit and track grievances with real-time progress updates and photo evidence support.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-bullhorn text-info display-4 mb-3"></i>
+                    <h5 class="card-title">Progress Monitoring</h5>
+                    <p class="card-text">Monitor the progress of your grievances with detailed status updates and timeline tracking.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-chart-line text-success display-4 mb-3"></i>
+                    <h5 class="card-title">Transparency & Accountability</h5>
+                    <p class="card-text">Experience transparent grievance resolution with full accountability and public visibility.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Statistics Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3 mb-4">
+                <div class="card border-primary">
+                    <div class="card-body">
+                        <i class="fas fa-users text-primary display-4 mb-3"></i>
+                        <h3 class="text-primary">10,000+</h3>
+                        <p class="mb-0">Registered Citizens</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-4">
+                <div class="card border-success">
+                    <div class="card-body">
+                        <i class="fas fa-check-circle text-success display-4 mb-3"></i>
+                        <h3 class="text-success">85%</h3>
+                        <p class="mb-0">Complaints Resolved</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-4">
+                <div class="card border-info">
+                    <div class="card-body">
+                        <i class="fas fa-building text-info display-4 mb-3"></i>
+                        <h3 class="text-info">500+</h3>
+                        <p class="mb-0">Villages Covered</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-4">
+                <div class="card border-warning">
+                    <div class="card-body">
+                        <i class="fas fa-clock text-warning display-4 mb-3"></i>
+                        <h3 class="text-warning">24/7</h3>
+                        <p class="mb-0">Portal Access</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-5 text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="container text-center">
+        <h2 class="display-5 fw-bold mb-4">Ready to Get Started?</h2>
+        <p class="lead mb-4">Submit your grievances and track their progress in real-time</p>
+        <a href="{{ url_for('submit_complaint') }}" class="btn btn-light btn-lg me-3">
+            <i class="fas fa-plus me-2"></i>Submit Grievance Now
+        </a>
+        <a href="{{ url_for('announcements') }}" class="btn btn-outline-light btn-lg">
+            <i class="fas fa-bullhorn me-2"></i>View Announcements
+        </a>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('locationForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const state = document.getElementById('state').value;
+    const district = document.getElementById('district').value;
+    const village = document.getElementById('village').value;
+    
+    if (state && district && village) {
+        // Determine area type based on village selection
+        const urbanAreas = ['Amberpet', 'Secunderabad', 'Charminar', 'Banjara Hills', 'Jubilee Hills'];
+        const isUrban = urbanAreas.includes(village);
+        
+        const areaType = isUrban ? 'Urban' : 'Rural';
+        const authority = isUrban ? 'Greater Hyderabad Municipal Corporation' : `${village} Gram Panchayat`;
+        
+        const areaDetails = `
+            <p><strong>Selected Area:</strong> ${village}, ${district}, ${state}</p>
+            <p><strong>Area Type:</strong> ${areaType}</p>
+            <p><strong>Governing Authority:</strong> ${authority}</p>
+            <p><strong>Services Available:</strong> ${isUrban ? 'Municipal Services, Urban Development' : 'Panchayat Services, Rural Development, Welfare Schemes'}</p>
+        `;
+        
+        document.getElementById('areaDetails').innerHTML = areaDetails;
+        document.getElementById('areaInfo').style.display = 'block';
+    }
+});
+</script>
+{% endblock %}

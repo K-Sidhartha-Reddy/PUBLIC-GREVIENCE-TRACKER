@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block title %}Announcements - Public Grievance & Digital Governance Portal{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h2 class="card-title">
+                        <i class="fas fa-bullhorn me-2"></i>Digital Governance Announcements
+                    </h2>
+                    <p class="card-text">Stay updated with the latest announcements from your local Panchayat and Municipal authorities.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-4 mb-3">
+                            <label for="locationFilter" class="form-label">Filter by Location:</label>
+                            <select class="form-select" id="locationFilter">
+                                <option value="">All Locations</option>
+                                <option value="Amberpet">Amberpet</option>
+                                <option value="Tirumalagiri">Tirumalagiri</option>
+                                <option value="Bandlaguda">Bandlaguda</option>
+                                <option value="Maredpalle">Maredpalle</option>
+                                <option value="Secunderabad">Secunderabad</option>
+                                <option value="Charminar">Charminar</option>
+                                <option value="Banjara Hills">Banjara Hills</option>
+                                <option value="Jubilee Hills">Jubilee Hills</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="typeFilter" class="form-label">Filter by Type:</label>
+                            <select class="form-select" id="typeFilter">
+                                <option value="">All Types</option>
+                                <option value="Meeting Schedule">Meeting Schedule</option>
+                                <option value="Public Notice">Public Notice</option>
+                                <option value="Welfare Scheme">Welfare Scheme</option>
+                                <option value="Fund Usage">Fund Usage</option>
+                                <option value="Development Work">Development Work</option>
+                                <option value="Emergency Notice">Emergency Notice</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="searchInput" class="form-label">Search:</label>
+                            <input type="text" class="form-control" id="searchInput" placeholder="Search announcements...">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Announcements List -->
+    <div class="row">
+        <div class="col-12">
+            {% if announcements %}
+                <div id="announcementsList">
+                    {% for announcement in announcements %}
+                    <div class="card mb-3 announcement-card" 
+                         data-location="{{ announcement.location.village }}" 
+                         data-type="{{ announcement.announcement_type }}"
+                         data-title="{{ announcement.title|lower }}"
+                         data-content="{{ announcement.content|lower }}">
+                        <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #f8f9fa;">
+                            <h5 class="card-title mb-0 text-dark">{{ announcement.title }}</h5>
+                            <div class="text-end">
+                                <small class="badge bg-info">
+                                    <i class="fas fa-map-marker-alt me-1"></i>{{ announcement.location.village }}, {{ announcement.location.district }}
+                                </small>
+                                <br>
+                                <small class="badge bg-secondary">
+                                    <i class="fas fa-tag me-1"></i>{{ announcement.announcement_type }}
+                                </small>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-{{ 'success' if announcement.location.area_type == 'rural' else 'primary' }}">
+                                    {{ announcement.location.area_type.title() }}
+                                </span>
+                                <br>
+                                <small class="text-dark">{{ announcement.created_at.strftime('%d/%m/%Y') }}</small>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text text-dark">{{ announcement.content[:200] }}{% if announcement.content|length > 200 %}...{% endif %}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-dark">
+                                    <i class="fas fa-user me-1"></i>Posted by {{ announcement.author.username }}
+                                    <span class="mx-2">•</span>
+                                    <i class="fas fa-building me-1"></i>{{ announcement.location.authority }}
+                                </small>
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#announcementModal{{ announcement.id }}">
+                                    <i class="fas fa-eye me-1"></i>Read More
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-bullhorn text-muted display-4 mb-3"></i>
+                    <h5 class="text-muted">No announcements available</h5>
+                    <p class="text-muted">Check back later for updates from your local authorities.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Announcement Detail Modals -->
+{% for announcement in announcements %}
+<div class="modal fade" id="announcementModal{{ announcement.id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ announcement.title }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-map-marker-alt me-2"></i>Location:</h6>
+                        <p>{{ announcement.location.village }}, {{ announcement.location.district }}, {{ announcement.location.state }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-tag me-2"></i>Type:</h6>
+                        <p><span class="badge bg-secondary">{{ announcement.announcement_type }}</span></p>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-building me-2"></i>Authority:</h6>
+                        <p>{{ announcement.location.authority }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-calendar me-2"></i>Posted:</h6>
+                        <p>{{ announcement.created_at.strftime('%d/%m/%Y at %H:%M') }}</p>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <h6><i class="fas fa-file-text me-2"></i>Content:</h6>
+                <div class="announcement-content">
+                    {{ announcement.content|replace('\n', '<br>')|safe }}
+                </div>
+                
+                <hr>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-user me-2"></i>Posted by:</h6>
+                        <p>{{ announcement.author.username }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-info-circle me-2"></i>Area Type:</h6>
+                        <p><span class="badge bg-{{ 'success' if announcement.location.area_type == 'rural' else 'primary' }}">{{ announcement.location.area_type.title() }}</span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="shareAnnouncement({{ announcement.id }})">
+                    <i class="fas fa-share me-1"></i>Share
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Filter functionality
+document.getElementById('locationFilter').addEventListener('change', filterAnnouncements);
+document.getElementById('typeFilter').addEventListener('change', filterAnnouncements);
+document.getElementById('searchInput').addEventListener('input', filterAnnouncements);
+
+function filterAnnouncements() {
+    const locationFilter = document.getElementById('locationFilter').value.toLowerCase();
+    const typeFilter = document.getElementById('typeFilter').value.toLowerCase();
+    const searchInput = document.getElementById('searchInput').value.toLowerCase();
+    
+    const announcements = document.querySelectorAll('.announcement-card');
+    
+    announcements.forEach(announcement => {
+        const location = announcement.dataset.location.toLowerCase();
+        const type = announcement.dataset.type.toLowerCase();
+        const title = announcement.dataset.title;
+        const content = announcement.dataset.content;
+        
+        const matchesLocation = !locationFilter || location.includes(locationFilter);
+        const matchesType = !typeFilter || type.includes(typeFilter);
+        const matchesSearch = !searchInput || title.includes(searchInput) || content.includes(searchInput);
+        
+        if (matchesLocation && matchesType && matchesSearch) {
+            announcement.style.display = 'block';
+        } else {
+            announcement.style.display = 'none';
+        }
+    });
+}
+
+function shareAnnouncement(announcementId) {
+    if (navigator.share) {
+        navigator.share({
+            title: 'Government Announcement',
+            text: 'Check out this important announcement from your local government.',
+            url: window.location.href
+        });
+    } else {
+        // Fallback: copy to clipboard
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            alert('Link copied to clipboard!');
+        });
+    }
+}
+</script>
+{% endblock %}
+

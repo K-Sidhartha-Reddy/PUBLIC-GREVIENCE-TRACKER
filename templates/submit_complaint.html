@@ -1,0 +1,380 @@
+{% extends "base.html" %}
+
+{% block title %}Submit Grievance - Public Grievance Tracker{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <h3 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Submit a Grievance
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="title" class="form-label">
+                                    <i class="fas fa-heading me-2"></i>Grievance Title
+                                </label>
+                                <input type="text" class="form-control" id="title" name="title" required placeholder="Brief description of the issue">
+                                <div class="form-text">Provide a clear, concise title for your complaint</div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="category" class="form-label">
+                                    <i class="fas fa-tags me-2"></i>Category
+                                </label>
+                                <select class="form-select" id="category" name="category" required>
+                                    <option value="">Select Category</option>
+                                    <option value="Roads & Transportation">🏗️ Roads & Transportation</option>
+                                    <option value="Water Supply & Drainage">💧 Water Supply & Drainage</option>
+                                    <option value="Sanitation & Waste Management">🧹 Sanitation & Waste Management</option>
+                                    <option value="Electricity & Power">⚡ Electricity & Power</option>
+                                    <option value="Environment & Public Spaces">🌳 Environment & Public Spaces</option>
+                                    <option value="Education & Public Facilities">🏫 Education & Public Facilities</option>
+                                    <option value="Health & Hygiene">🏥 Health & Hygiene</option>
+                                    <option value="Government & Administrative Services">🧾 Government & Administrative Services</option>
+                                    <option value="Housing & Infrastructure">🏡 Housing & Infrastructure</option>
+                                    <option value="Emergency & Safety">🔥 Emergency & Safety</option>
+                                    <option value="Panchayat & Digital Governance">🏛️ Panchayat & Digital Governance</option>
+                                    <option value="Urban Municipal Issues">🏙️ Urban Municipal Issues</option>
+                                </select>
+                                <div class="form-text">Choose the main category that best describes your issue</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Subcategory Selection -->
+                        <div class="mb-3">
+                            <label for="subcategory" class="form-label">
+                                <i class="fas fa-list-ul me-2"></i>Specific Issue Type
+                            </label>
+                            <select class="form-select" id="subcategory" name="subcategory" required>
+                                <option value="">Select specific issue type</option>
+                                <!-- Options will be populated dynamically based on category selection -->
+                            </select>
+                            <div class="form-text">Choose the specific type of issue you're reporting</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">
+                                <i class="fas fa-align-left me-2"></i>Detailed Description
+                            </label>
+                            <textarea class="form-control" id="description" name="description" rows="4" required placeholder="Please provide detailed information about the issue, including location specifics and impact on the community."></textarea>
+                            <div class="form-text">Be as specific as possible about the issue, its location, and its impact</div>
+                        </div>
+                        
+                        <!-- Complainant Details (for anonymous users) -->
+                        {% if not current_user.is_authenticated or current_user.role != 'citizen' %}
+                        <div class="card mb-3">
+                            <div class="card-header bg-warning text-dark">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-user me-2"></i>Your Contact Details
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="complainant_name" class="form-label">
+                                            <i class="fas fa-user me-2"></i>Full Name
+                                        </label>
+                                        <input type="text" class="form-control" id="complainant_name" name="complainant_name" required placeholder="Enter your full name">
+                                        <div class="form-text">Required for anonymous complaints</div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="complainant_email" class="form-label">
+                                            <i class="fas fa-envelope me-2"></i>Email Address
+                                        </label>
+                                        <input type="email" class="form-control" id="complainant_email" name="complainant_email" required placeholder="Enter your email address">
+                                        <div class="form-text">Required for anonymous complaints</div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="complainant_phone" class="form-label">
+                                            <i class="fas fa-phone me-2"></i>Phone Number (Optional)
+                                        </label>
+                                        <input type="tel" class="form-control" id="complainant_phone" name="complainant_phone" placeholder="Enter your phone number">
+                                        <div class="form-text">Optional - helps us contact you for updates</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Location Selection -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-info text-white">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Location Details
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="state" class="form-label">State</label>
+                                        <select class="form-select" id="state" name="state" required>
+                                            <option value="">Select State</option>
+                                            <option value="Telangana" selected>Telangana</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="district" class="form-label">District</label>
+                                        <select class="form-select" id="district" name="district" required>
+                                            <option value="">Select District</option>
+                                            <option value="Hyderabad" selected>Hyderabad</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="village" class="form-label">Village/Urban Locality</label>
+                                        <select class="form-select" id="village" name="village" required>
+                                            <option value="">Select Village/Locality</option>
+                                            <option value="Amberpet">Amberpet</option>
+                                            <option value="Tirumalagiri">Tirumalagiri</option>
+                                            <option value="Bandlaguda">Bandlaguda</option>
+                                            <option value="Maredpalle">Maredpalle</option>
+                                            <option value="Secunderabad">Secunderabad</option>
+                                            <option value="Charminar">Charminar</option>
+                                            <option value="Banjara Hills">Banjara Hills</option>
+                                            <option value="Jubilee Hills">Jubilee Hills</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <!-- Area Information Display -->
+                                <div id="areaInfo" class="mt-3" style="display: none;">
+                                    <div class="alert alert-info">
+                                        <h6><i class="fas fa-info-circle me-2"></i>Area Information</h6>
+                                        <div id="areaDetails"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="image" class="form-label">
+                                <i class="fas fa-camera me-2"></i>Attach Photo (Optional)
+                            </label>
+                            <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                            <div class="form-text">Upload a photo to support your complaint. Maximum file size: 5MB. Supported formats: JPG, PNG, GIF</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="terms" required>
+                                <label class="form-check-label" for="terms">
+                                    I confirm that the information provided is accurate and the complaint is genuine.
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('citizen_dashboard') }}" class="btn btn-secondary me-md-2">Cancel</a>
+                            <button type="submit" class="btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Grievance
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Guidelines Card -->
+            <div class="card mt-4">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Grievance Guidelines
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li>Provide accurate and detailed information about the issue</li>
+                        <li>Include specific location details for better resolution</li>
+                        <li>Attach relevant photos or documents if available</li>
+                        <li>Grievances will be reviewed within 24 hours</li>
+                        <li>You can track progress in real-time on your dashboard</li>
+                        <li>False or misleading grievances may result in account suspension</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Subcategory options for each category
+const subcategories = {
+    'Roads & Transportation': [
+        'Potholes or damaged roads',
+        'Broken or missing streetlights',
+        'Traffic signal not working',
+        'Lack of pedestrian crossings',
+        'Damaged or missing road signs',
+        'Poor drainage on roads',
+        'Illegal parking issues',
+        'Unmaintained public bus stops'
+    ],
+    'Water Supply & Drainage': [
+        'Water leakage or pipeline burst',
+        'Irregular water supply',
+        'Contaminated or muddy water',
+        'Drainage blockage / overflow',
+        'Open or damaged manholes',
+        'Sewer smell in residential areas'
+    ],
+    'Sanitation & Waste Management': [
+        'Garbage not collected regularly',
+        'Overflowing dustbins',
+        'Illegal dumping of waste',
+        'Lack of public dustbins',
+        'Mosquito breeding spots / stagnant water'
+    ],
+    'Electricity & Power': [
+        'Frequent power cuts',
+        'Damaged electric poles or wires',
+        'Streetlight not functioning',
+        'Transformer failure or sparks',
+        'Low voltage issues'
+    ],
+    'Environment & Public Spaces': [
+        'Tree cutting without permission',
+        'Lack of greenery / need for plantation drive',
+        'Encroachment on public parks',
+        'Polluted lakes or ponds',
+        'Noise pollution or burning of waste'
+    ],
+    'Education & Public Facilities': [
+        'Poor maintenance of government schools',
+        'Lack of clean drinking water in schools',
+        'Broken classroom infrastructure',
+        'Playground maintenance issues',
+        'Public library or community hall upkeep'
+    ],
+    'Health & Hygiene': [
+        'Poor sanitation near hospitals',
+        'Mosquito or vector-borne disease risk',
+        'Lack of medical waste disposal',
+        'Overflowing sewage near residential areas'
+    ],
+    'Government & Administrative Services': [
+        'Delay in document processing (ration, birth/death certificate, etc.)',
+        'Non-functional government service centers',
+        'Issues with pensions or welfare schemes',
+        'Corruption or negligence in local office'
+    ],
+    'Housing & Infrastructure': [
+        'Unsafe or illegal construction',
+        'Water stagnation near houses',
+        'Lack of drainage connections',
+        'Encroachment of government land'
+    ],
+    'Emergency & Safety': [
+        'Fire hazards (unattended garbage, chemical waste)',
+        'Open borewells or pits',
+        'Stray animal issues',
+        'Public safety concerns in dark or isolated areas'
+    ],
+    'Panchayat & Digital Governance': [
+        'Panchayat meeting schedule updates missing',
+        'Issues with panchayat fund transparency',
+        'Request for new digital service in village',
+        'Need for online access to meeting resolutions',
+        'Maintenance of panchayat website or information board'
+    ],
+    'Urban Municipal Issues': [
+        'Delay in building permissions',
+        'Encroachment on footpaths',
+        'Overflowing public drains',
+        'Lack of public toilets',
+        'Poor street cleaning services'
+    ]
+};
+
+// Handle category change
+document.getElementById('category').addEventListener('change', function() {
+    const category = this.value;
+    const subcategorySelect = document.getElementById('subcategory');
+    const subcategoryContainer = subcategorySelect.parentElement;
+    
+    // Clear existing options
+    subcategorySelect.innerHTML = '<option value="">Select specific issue type</option>';
+    
+    if (category && subcategories[category]) {
+        subcategories[category].forEach(option => {
+            const optionElement = document.createElement('option');
+            optionElement.value = option;
+            optionElement.textContent = option;
+            subcategorySelect.appendChild(optionElement);
+        });
+        
+        // Show subcategory field with animation
+        subcategoryContainer.style.display = 'block';
+        subcategorySelect.required = true;
+    } else {
+        // Hide subcategory field
+        subcategoryContainer.style.display = 'none';
+        subcategorySelect.required = false;
+    }
+});
+
+// Form validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    const category = document.getElementById('category').value;
+    const subcategory = document.getElementById('subcategory').value;
+    
+    if (category && !subcategory) {
+        e.preventDefault();
+        alert('Please select a specific issue type for the chosen category.');
+        document.getElementById('subcategory').focus();
+        return false;
+    }
+    
+    // Check if anonymous user fields are required
+    const complainantName = document.getElementById('complainant_name');
+    const complainantEmail = document.getElementById('complainant_email');
+    
+    if (complainantName && complainantEmail) {
+        if (!complainantName.value.trim() || !complainantEmail.value.trim()) {
+            e.preventDefault();
+            alert('Name and email are required for anonymous complaints.');
+            if (!complainantName.value.trim()) {
+                complainantName.focus();
+            } else {
+                complainantEmail.focus();
+            }
+            return false;
+        }
+    }
+});
+
+// Handle village change
+document.getElementById('village').addEventListener('change', function() {
+    const village = this.value;
+    const areaInfo = document.getElementById('areaInfo');
+    const areaDetails = document.getElementById('areaDetails');
+    
+    if (village) {
+        // Determine area type based on village selection
+        const urbanAreas = ['Amberpet', 'Secunderabad', 'Charminar', 'Banjara Hills', 'Jubilee Hills'];
+        const isUrban = urbanAreas.includes(village);
+        
+        const areaType = isUrban ? 'Urban' : 'Rural';
+        const authority = isUrban ? 'Greater Hyderabad Municipal Corporation' : `${village} Gram Panchayat`;
+        
+        const details = `
+            <p><strong>Area Type:</strong> ${areaType}</p>
+            <p><strong>Governing Authority:</strong> ${authority}</p>
+            <p><strong>Expected Response Time:</strong> ${isUrban ? '7-10 working days' : '10-15 working days'}</p>
+        `;
+        
+        areaDetails.innerHTML = details;
+        areaInfo.style.display = 'block';
+    } else {
+        areaInfo.style.display = 'none';
+    }
+});
+</script>
+{% endblock %}

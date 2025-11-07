@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+
+{% block title %}Citizen Dashboard - Public Grievance Tracker{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-body">
+                    <h2 class="card-title">
+                        <i class="fas fa-user me-2"></i>Welcome, {{ current_user.full_name }}!
+                    </h2>
+                    <p class="card-text mb-2">Track your grievances and monitor their progress in real-time.</p>
+                    <p class="card-text mb-0">
+                        <i class="fas fa-map-marker-alt me-2"></i>
+                        <strong>Location:</strong> {{ current_user.district }}, {{ current_user.state }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Summary -->
+    {% if stats %}
+    <div class="row mb-4">
+        <div class="col-md-2 mb-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-coins text-warning display-6 mb-2"></i>
+                    <h6 class="text-muted">Points Balance</h6>
+                    <h3 class="mb-0 text-warning">{{ current_user.points_balance }}</h3>
+                    <a href="{{ url_for('redeem_points') }}" class="btn btn-sm btn-warning mt-2">Redeem</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Total Grievances</h6>
+                    <h3 class="mb-0">{{ stats.total }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Submitted</h6>
+                    <h3 class="mb-0">{{ stats.submitted }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">In Progress</h6>
+                    <h3 class="mb-0">{{ stats.in_progress }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Resolved</h6>
+                    <h3 class="mb-0">{{ stats.resolved }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Points Earned</h6>
+                    <h3 class="mb-0 text-success">{{ current_user.total_points_earned }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-plus-circle text-success display-4 mb-3"></i>
+                    <h5 class="card-title">Submit New Grievance</h5>
+                    <p class="card-text">Report issues in your area with photo evidence and track progress.</p>
+                    <a href="{{ url_for('submit_complaint') }}" class="btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+                        <i class="fas fa-plus me-2"></i>Submit Grievance
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-bullhorn text-info display-4 mb-3"></i>
+                    <h5 class="card-title">View Announcements</h5>
+                    <p class="card-text">Stay updated with latest Panchayat and Municipal announcements.</p>
+                    <a href="{{ url_for('announcements') }}" class="btn btn-info">
+                        <i class="fas fa-bullhorn me-2"></i>View Announcements
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Complaints Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <h4 class="mb-0">
+                        <i class="fas fa-list me-2"></i>My Grievances
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {% if complaints %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Title</th>
+                                        <th>Category</th>
+                                        <th>Issue Type</th>
+                                        <th>Status</th>
+                                        <th>Progress</th>
+                                        <th>Location</th>
+                                        <th>Submitted</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for complaint in complaints %}
+                                    <tr>
+                                        <td>{{ complaint.id }}</td>
+                                        <td>{{ complaint.title }}</td>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ complaint.category }}</span>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">{{ complaint.subcategory }}</small>
+                                        </td>
+                                        <td>
+                                            {% if complaint.status == 'Submitted' %}
+                                                <span class="badge bg-warning">{{ complaint.status }}</span>
+                                            {% elif complaint.status == 'In Progress' %}
+                                                <span class="badge bg-info">{{ complaint.status }}</span>
+                                            {% elif complaint.status == 'Resolved' %}
+                                                <span class="badge bg-success">{{ complaint.status }}</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ complaint.status }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="progress" style="height: 20px;">
+                                                <div class="progress-bar" role="progressbar" 
+                                                     style="width: {{ complaint.progress }}%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" 
+                                                     aria-valuenow="{{ complaint.progress }}" 
+                                                     aria-valuemin="0" 
+                                                     aria-valuemax="100">
+                                                    {{ complaint.progress }}%
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ complaint.location.village }}, {{ complaint.location.district }}</td>
+                                        <td>{{ complaint.created_at.strftime('%d/%m/%Y') }}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#complaintModal{{ complaint.id }}">
+                                                <i class="fas fa-eye"></i> View
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-inbox text-muted display-4 mb-3"></i>
+                            <h5 class="text-muted">No grievances submitted yet</h5>
+                            <p class="text-muted">Submit your first grievance to get started!</p>
+                            <a href="{{ url_for('submit_complaint') }}" class="btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+                                <i class="fas fa-plus me-2"></i>Submit Grievance
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Complaint Detail Modals -->
+{% for complaint in complaints %}
+<div class="modal fade" id="complaintModal{{ complaint.id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Complaint Details - #{{ complaint.id }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Title:</h6>
+                        <p>{{ complaint.title }}</p>
+                        
+                        <h6>Category:</h6>
+                        <p><span class="badge bg-secondary">{{ complaint.category }}</span></p>
+                        
+                        <h6>Issue Type:</h6>
+                        <p><span class="badge bg-info">{{ complaint.subcategory }}</span></p>
+                        
+                        <h6>Status:</h6>
+                        <p>
+                            {% if complaint.status == 'Submitted' %}
+                                <span class="badge bg-warning">{{ complaint.status }}</span>
+                            {% elif complaint.status == 'In Progress' %}
+                                <span class="badge bg-info">{{ complaint.status }}</span>
+                            {% elif complaint.status == 'Resolved' %}
+                                <span class="badge bg-success">{{ complaint.status }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ complaint.status }}</span>
+                            {% endif %}
+                        </p>
+                        
+                        <h6>Progress:</h6>
+                        <div class="progress mb-3" style="height: 25px;">
+                            <div class="progress-bar" role="progressbar" 
+                                 style="width: {{ complaint.progress }}%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" 
+                                 aria-valuenow="{{ complaint.progress }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                                {{ complaint.progress }}%
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Location:</h6>
+                        <p>{{ complaint.location.village }}, {{ complaint.location.district }}, {{ complaint.location.state }}</p>
+                        
+                        <h6>Area Type:</h6>
+                        <p><span class="badge bg-info">{{ complaint.location.area_type.title() }}</span></p>
+                        
+                        <h6>Governing Authority:</h6>
+                        <p>{{ complaint.location.authority }}</p>
+                    </div>
+                </div>
+                
+                <h6>Description:</h6>
+                <p>{{ complaint.description }}</p>
+                
+                {% if complaint.image_path %}
+                <h6>Attached Image:</h6>
+                <img src="{{ url_for('static', filename='uploads/' + complaint.image_path) }}" class="img-fluid rounded" alt="Complaint Image">
+                {% endif %}
+                
+                <hr>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Submitted:</h6>
+                        <p>{{ complaint.created_at.strftime('%d/%m/%Y at %H:%M') }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Last Updated:</h6>
+                        <p>{{ complaint.updated_at.strftime('%d/%m/%Y at %H:%M') }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+
+{% block title %}Register - Public Grievance Tracker{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header text-white text-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <h3 class="mb-0">
+                        <i class="fas fa-user-plus me-2"></i>Register with Aadhaar
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="aadhaar_number" class="form-label">Aadhaar Number</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-id-card"></i>
+                                </span>
+                                <input type="text" class="form-control" id="aadhaar_number" name="aadhaar_number" 
+                                       placeholder="Enter 12-digit Aadhaar number" maxlength="12" pattern="[0-9]{12}" required>
+                            </div>
+                            <div class="form-text">Your Aadhaar number will be used for login</div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="full_name" class="form-label">Full Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-user"></i>
+                                    </span>
+                                    <input type="text" class="form-control" id="full_name" name="full_name" required>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-envelope"></i>
+                                    </span>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="phone" class="form-label">Phone Number</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-phone"></i>
+                                    </span>
+                                    <input type="tel" class="form-control" id="phone" name="phone" 
+                                           placeholder="10-digit mobile number" maxlength="10" pattern="[0-9]{10}" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="state" class="form-label">State</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-map"></i>
+                                    </span>
+                                    <select class="form-select" id="state" name="state" required>
+                                        <option value="">Select State</option>
+                                        <option value="Telangana">Telangana</option>
+                                        <option value="Andhra Pradesh">Andhra Pradesh</option>
+                                        <option value="Karnataka">Karnataka</option>
+                                        <option value="Maharashtra">Maharashtra</option>
+                                        <option value="Tamil Nadu">Tamil Nadu</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="district" class="form-label">District</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                    </span>
+                                    <input type="text" class="form-control" id="district" name="district" 
+                                           placeholder="Enter your district" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="role" class="form-label">Account Type</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-user-tag"></i>
+                                    </span>
+                                    <select class="form-select" id="role" name="role" required onchange="toggleNGOFields()">
+                                        <option value="">Select Account Type</option>
+                                        <option value="citizen">Citizen</option>
+                                        <option value="ngo">NGO</option>
+                                        <option value="admin">Government Official</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- NGO-specific fields (hidden by default) -->
+                        <div id="ngoFields" style="display: none;">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="organization_name" class="form-label">Organization Name</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-building"></i>
+                                        </span>
+                                        <input type="text" class="form-control" id="organization_name" name="organization_name">
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="registration_number" class="form-label">Registration Number</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-certificate"></i>
+                                        </span>
+                                        <input type="text" class="form-control" id="registration_number" name="registration_number">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="ngo_type" class="form-label">NGO Type</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-hands-helping"></i>
+                                    </span>
+                                    <select class="form-select" id="ngo_type" name="ngo_type">
+                                        <option value="">Select NGO Type</option>
+                                        <option value="Social Welfare">Social Welfare</option>
+                                        <option value="Environment">Environment</option>
+                                        <option value="Health">Health</option>
+                                        <option value="Education">Education</option>
+                                        <option value="Infrastructure">Infrastructure</option>
+                                        <option value="Community Development">Community Development</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="terms" required>
+                                <label class="form-check-label" for="terms">
+                                    I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms and Conditions</a>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-lg" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+                                <i class="fas fa-user-plus me-2"></i>Register
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <hr>
+                    
+                    <div class="text-center">
+                        <p class="mb-0">Already have an account?</p>
+                        <a href="{{ url_for('login') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login Here
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Terms and Conditions Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Terms and Conditions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6>1. Portal Usage</h6>
+                <p>This portal is designed for citizens of Telangana to submit grievances and access digital governance services.</p>
+                
+                <h6>2. Data Privacy</h6>
+                <p>Your personal information will be used only for the purpose of grievance redressal and governance services.</p>
+                
+                <h6>3. Complaint Submission</h6>
+                <p>All complaints must be genuine and related to civic issues. False complaints may result in account suspension.</p>
+                
+                <h6>4. Response Time</h6>
+                <p>Authorities will respond to complaints within 15 working days as per government guidelines.</p>
+                
+                <h6>5. Account Responsibility</h6>
+                <p>Users are responsible for maintaining the confidentiality of their account credentials.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleNGOFields() {
+    const role = document.getElementById('role').value;
+    const ngoFields = document.getElementById('ngoFields');
+    
+    // Hide NGO fields first
+    ngoFields.style.display = 'none';
+    
+    // Show NGO fields if NGO role selected
+    if (role === 'ngo') {
+        ngoFields.style.display = 'block';
+        // Make NGO fields required
+        document.getElementById('organization_name').required = true;
+        document.getElementById('registration_number').required = true;
+        document.getElementById('ngo_type').required = true;
+    } else {
+        // Citizen or Admin - no extra fields required
+        document.getElementById('organization_name').required = false;
+        document.getElementById('registration_number').required = false;
+        document.getElementById('ngo_type').required = false;
+    }
+}
+</script>
+{% endblock %}
