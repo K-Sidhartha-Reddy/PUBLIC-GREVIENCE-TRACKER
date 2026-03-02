@@ -253,7 +253,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Support
 
 For support and questions:
-- Email: support@telangana.gov.in
+- Email: support@telangana.gov.in,2410030520@klh.edu.in
 - Phone: 1800-XXX-XXXX
 - Documentation: [Portal Documentation](link-to-docs)
 
